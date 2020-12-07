@@ -45,12 +45,6 @@ export function activate(context: ExtensionContext) {
 		}
 	};
 
-	/* this doesn't work
-	// settings.json configuration
-	const config = workspace.getConfiguration('settings');
-	config.update("files.associations", { "*.rsh" : "javascript" }, false);
-	*/
-
 	terminal = window.createTerminal({ name: "Reach IDE" });
 	registerCommands(context);
 
