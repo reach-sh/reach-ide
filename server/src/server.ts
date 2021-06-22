@@ -38,6 +38,7 @@ import {
 	TextDocument, Range, TextEdit
 } from 'vscode-languageserver-textdocument';
 import { reachCompletionKind, reachKeywords } from './keywordCompletion';
+import kwds from './out';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -561,6 +562,9 @@ function getReachKeywordMarkdown(word: string): string {
 	// then input to: https://euangoddard.github.io/clipboard2markdown/
 	// then input to: https://www.freeformatter.com/javascript-escape.html
 	var buf: string = "";
+	// @ts-ignore
+	return kwds[word] || ""
+
 	if (word == 'export') {
 		buf = "#### export\r\n\r\nModule-level\u00A0[identifier definitions](https:\/\/docs.reach.sh\/ref-programs-compute.html#%28tech._identifier._definition%29)\u00A0may be\u00A0exported by writing\u00A0`export`\u00A0in front of them. For example,\r\n\r\n[export](https:\/\/docs.reach.sh\/ref-programs-module.html#%28reach._%28%28export%29%29%29) [const](https:\/\/docs.reach.sh\/ref-programs-compute.html#%28reach._%28%28const%29%29%29) x = 1;\r\n[export](https:\/\/docs.reach.sh\/ref-programs-module.html#%28reach._%28%28export%29%29%29) [const](https:\/\/docs.reach.sh\/ref-programs-compute.html#%28reach._%28%28const%29%29%29) [a, b, ...more] = [ 0, 1, 2, 3, 4 ];\r\n[export](https:\/\/docs.reach.sh\/ref-programs-module.html#%28reach._%28%28export%29%29%29) [function](https:\/\/docs.reach.sh\/ref-programs-compute.html#%28reach._%28%28function%29%29%29) add1(x) { [return](https:\/\/docs.reach.sh\/ref-programs-compute.html#%28reach._%28%28return%29%29%29) x [+](https:\/\/docs.reach.sh\/ref-programs-compute.html#%28reach._%28%28%2B%29%29%29) 1; };\r\n\r\nare valid\u00A0[exports](https:\/\/docs.reach.sh\/ref-programs-module.html#%28tech._export%29).\r\n\r\nModule-level identifiers may also be\u00A0[export](https:\/\/docs.reach.sh\/ref-programs-module.html#%28tech._export%29)ed after the fact, and may be renamed during export. For example:\r\n\r\n[const](https:\/\/docs.reach.sh\/ref-programs-compute.html#%28reach._%28%28const%29%29%29) w = 2;\r\n[const](https:\/\/docs.reach.sh\/ref-programs-compute.html#%28reach._%28%28const%29%29%29) z = 0;\r\n[export](https:\/\/docs.reach.sh\/ref-programs-module.html#%28reach._%28%28export%29%29%29) {w, z as zero};\r\n\r\nIdentifiers from other modules may be re-exported (and renamed), even if they are not imported in the current module. For example:\r\n\r\n[export](https:\/\/docs.reach.sh\/ref-programs-module.html#%28reach._%28%28export%29%29%29) {u, x as other_x} [from](https:\/\/docs.reach.sh\/ref-programs-module.html#%28reach._%28%28from%29%29%29) \'.\/other-module.rsh\';\r\n\r\nAn\u00A0[export](https:\/\/docs.reach.sh\/ref-programs-module.html#%28tech._export%29)ed identifier in a given\u00A0[module](https:\/\/docs.reach.sh\/ref-programs-module.html#%28tech._module%29)\u00A0may be\u00A0[import](https:\/\/docs.reach.sh\/ref-programs-module.html#%28tech._import%29)ed by other\u00A0[modules](https:\/\/docs.reach.sh\/ref-programs-module.html#%28tech._module%29).";
 	} else if (word == 'import') {

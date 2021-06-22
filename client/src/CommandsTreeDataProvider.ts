@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { TreeItem } from 'vscode';
 import * as path from 'path';
+import * as kwds from './out';
 
 const reach_icon = path.join(__filename, "..", "..", "..", "images", "reach-icon.svg");
 const reach_icon_red = path.join(__filename, "..", "..", "..", "images", "reach-icon-red.svg");
@@ -80,6 +81,13 @@ export class HelpTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
 	}
 }
 
+const makeDocTreeItem = (label, title) => {
+	const t = new TreeItem(title, vscode.TreeItemCollapsibleState.Collapsed);
+	// t.description = title;
+	t.id = label;
+	return t;
+}
+
 export class DocumentationTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
 
 	data: vscode.TreeItem[];
@@ -87,6 +95,12 @@ export class DocumentationTreeDataProvider implements vscode.TreeDataProvider<Tr
 	constructor() {
 		this.data = [
 			makeLabeledTreeItem('docs', 'Open the documentation', 'reach.docs', reach_icon_red),
+			makeDocTreeItem('appinit', 'App Init'),
+			makeDocTreeItem('module', 'Module'),
+			makeDocTreeItem('step', 'Step'),
+			makeDocTreeItem('consensus', 'Consensus Step'),
+			makeDocTreeItem('local', 'Local Step'),
+			makeDocTreeItem('compute', 'Computations'),
 		]
 	}
 
@@ -94,7 +108,18 @@ export class DocumentationTreeDataProvider implements vscode.TreeDataProvider<Tr
 		return element;
 	}
 
-	getChildren(_?: TreeItem|undefined) {
-		return this.data;
+	getChildren(item: TreeItem|undefined) {
+		if (item == undefined) {
+			return this.data;
+		}
+		const title = item.id;
+		const obj = kwds[title];
+		return Object.keys(obj).sort().map((key, _) => {
+			const docs = obj[key];
+			// Open editor with markdown
+			const item = makeTreeItem(key, `reach.docs.${title}.${key}`);
+			item.tooltip = docs;
+			return item;
+		});
 	}
 }
