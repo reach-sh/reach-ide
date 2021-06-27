@@ -12,7 +12,6 @@ const JAVASCRIPT:string = 'javascript';
 const SERVER_DEBUG_OPTIONS_NOLAZY:string = '--nolazy';
 const REACH_EXECUTABLE_PATH:string ='reachide.executableLocation';
 const SERVER_DEBUG_OPTIONS_INSPECT_6009 = '--inspect=6009';
-const SETTINGS_ROOT:string = `${rootFolder}${path.sep}.vscode/settings.json`;
 const CANNOT_CREATE_SETTINGS:string = `Could not create .vscode/settings.json:`;
 const REACH_PATH:string = './reach';
 const REACH_CLIENT_ID:string = 'reachide';
