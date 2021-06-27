@@ -14,7 +14,36 @@ import * as path from 'path';
 import { workspace, ExtensionContext, commands, window, env, ViewColumn, Uri, WorkspaceFolder } from 'vscode';
 import { exec } from 'child_process';
 import { initButtons } from './buttons';
+import {CONSTANTS} from './CONSTANTS';
 
+enum CMD_HELPER {
+	COMPILE = <any>'compile',
+	RUN = <any>'run',
+	CLEAN = <any>'clean',
+	UPGRADE = <any>'upgrade',
+	UPDATE = <any>'update',
+	HASHES = <any>'hashes',
+	VERSION = <any>'version',
+	DOCKER_RESET = <any>'docker-reset',
+	DEVNET = <any>'devnet',
+	RPC_SERVER = <any>'rpc-server',
+	RPC_RUN = <any>'run',
+	RPC_REACT= <any>'react',
+	SCAFFOLD = <any>'scaffold',
+	DOWN = <any>'down',
+	INIT = <any>'init'
+  }
+
+  enum URL_HELPER {
+	DOCS = <any>'docs',
+	DOCS_URL = <any>'https://docs.reach.sh/doc-index.html',
+	ISSUE = <any>'issue',
+	ISSUE_URL = <any>'https://github.com/reach-sh/reach-lang/issues/new',
+	DISCORD = <any>'discord',
+	DISCORD_URL = <any>'https://discord.gg/2XzY6MVpFH',
+	GIST = <any>'gist',
+	GIST_URL = <any>'https://gist.github.com/'
+}
 import {
 	LanguageClient,
 	LanguageClientOptions,
@@ -27,16 +56,16 @@ let client: LanguageClient;
 let terminal;
 let rootFolder: string;
 
-const SETTINGS_ROOT:string = `${rootFolder}${path.sep}${VS_CODE_SETTING_JSON}`;
+const SETTINGS_ROOT:string = `${rootFolder}${path.sep}${CONSTANTS.VS_CODE_SETTING_JSON}`;
 
 export function activate(context: ExtensionContext) {
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(
-		path.join(PATH_SERVER_JOIN, PATH_SERVER_OUT, PATH_SERVER_JS_S)
+		path.join(CONSTANTS.PATH_SERVER_JOIN, CONSTANTS.PATH_SERVER_OUT, CONSTANTS.PATH_SERVER_JS_S)
 	);
 	// The debug options for the server
 	// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-	let debugOptions = { execArgv: [SERVER_DEBUG_OPTIONS_NOLAZY, SERVER_DEBUG_OPTIONS_INSPECT_6009] };
+	let debugOptions = { execArgv: [CONSTANTS.SERVER_DEBUG_OPTIONS_NOLAZY, CONSTANTS.SERVER_DEBUG_OPTIONS_INSPECT_6009] };
 
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
@@ -49,11 +78,11 @@ export function activate(context: ExtensionContext) {
 		}
 	};
 
-	terminal = window.createTerminal({ name: REACH_IDE_S });
-	const reachExecutablePath = workspace.getConfiguration().get(REACH_EXECUTABLE_PATH) as string;
-	const wf = workspace.workspaceFolders[0].uri.path || WORKSPACE_FOLDERS_DOT;
-	const reachPath = (reachExecutablePath === REACH_PATH)
-		? path.join(wf, JOIN_REACH)
+	terminal = window.createTerminal({ name: CONSTANTS.REACH_IDE_S });
+	const reachExecutablePath = workspace.getConfiguration().get(CONSTANTS.REACH_EXECUTABLE_PATH) as string;
+	const wf = workspace.workspaceFolders[0].uri.path || CONSTANTS.WORKSPACE_FOLDERS_DOT;
+	const reachPath = (reachExecutablePath === CONSTANTS.REACH_PATH)
+		? path.join(wf, CONSTANTS.JOIN_REACH)
 		: reachExecutablePath;
 	registerCommands(context, reachPath);
 
@@ -63,20 +92,20 @@ export function activate(context: ExtensionContext) {
 		// Register the server for Reach .rsh documents
 		documentSelector: [
 			{
-			  pattern: CREATE_FILESYSTEM_WATCHER_PARAM,
-			  scheme: SCHEME
+			  pattern: CONSTANTS.CREATE_FILESYSTEM_WATCHER_PARAM,
+			  scheme: CONSTANTS.SCHEME
 			}
 		],
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
-			fileEvents: workspace.createFileSystemWatcher(CREATE_FILESYSTEM_WATCHER_PARAM)
+			fileEvents: workspace.createFileSystemWatcher(CONSTANTS.CREATE_FILESYSTEM_WATCHER_PARAM)
 		}
 	};
 
 	// Create the language client and start the client.
 	client = new LanguageClient(
-		REACH_CLIENT_ID,
-		REACH_IDE_S,
+		CONSTANTS.REACH_CLIENT_ID,
+		CONSTANTS.REACH_IDE_S,
 		serverOptions,
 		clientOptions
 	);
@@ -88,17 +117,17 @@ export function activate(context: ExtensionContext) {
 
 	// Inject association for .rsh file type
 	if (workspace.workspaceFolders !== undefined) {
-		rootFolder = url.fileURLToPath( workspace.workspaceFolders[0].uri.toString() );
+		rootFolder = CONSTANTS.url.fileURLToPath( workspace.workspaceFolders[0].uri.toString() );
 	}
 	associateRshFiles();
 
-	window.registerTreeDataProvider(REACH_COMMANDS, new CommandsTreeDataProvider());
-	window.registerTreeDataProvider(REACH_HELP, new HelpTreeDataProvider());
-	window.registerTreeDataProvider(REACH_DOCS, new DocumentationTreeDataProvider());
+	window.registerTreeDataProvider(CONSTANTS.REACH_COMMANDS, new CommandsTreeDataProvider());
+	window.registerTreeDataProvider(CONSTANTS.REACH_HELP, new HelpTreeDataProvider());
+	window.registerTreeDataProvider(CONSTANTS.REACH_DOCS, new DocumentationTreeDataProvider());
 }
 
 const commandHelper = (context, reachPath) => (label) => {
-	const disposable = commands.registerCommand(`${JOIN_REACH}.${label}`, () => {
+	const disposable = commands.registerCommand(`${CONSTANTS.JOIN_REACH}.${label}`, () => {
 		terminal.show();
 		terminal.sendText(`${reachPath} ${label}`);
 	});
@@ -106,7 +135,7 @@ const commandHelper = (context, reachPath) => (label) => {
 };
 
 const urlHelper = (context, label, url) => {
-	const disposable = commands.registerCommand(`${JOIN_REACH}.${label}`, () => {
+	const disposable = commands.registerCommand(`${CONSTANTS.JOIN_REACH}.${label}`, () => {
 		env.openExternal(Uri.parse(url));
 	});
 	context.subscriptions.push(disposable);
@@ -127,13 +156,13 @@ function registerCommands(context: ExtensionContext, reachPath: string) {
 }
 
 function associateRshFiles() {
-	exec(`${MKDIR_P} ${rootFolder}${path.sep}${VSCODE_DOT_EXT}`, (error: { message: any; }, stdout: any, stderr: any) => {
+	exec(`${CONSTANTS.MKDIR_P} ${rootFolder}${path.sep}${CONSTANTS.VSCODE_DOT_EXT}`, (error: { message: any; }, stdout: any, stderr: any) => {
 		if (error) {
-			console.error(`${CANNOT_CREATE_SETTINGS} ${error.message}`);
+			console.error(`${CONSTANTS.CANNOT_CREATE_SETTINGS} ${error.message}`);
 			return;
 		}
 		if (stderr) {
-			console.error(`${CANNOT_CREATE_SETTINGS} ${stderr}`);
+			console.error(`${CONSTANTS.CANNOT_CREATE_SETTINGS} ${stderr}`);
 			return;
 		}
 		injectRshFileAssocation();
@@ -143,22 +172,22 @@ function associateRshFiles() {
 function injectRshFileAssocation() {
 	const settingsFile:string = SETTINGS_ROOT;
 
-	fs.readFile(settingsFile, function (err: any, content: string) {
+	CONSTANTS.fs.readFile(settingsFile, function (err: any, content: string) {
 		let parseJson: { [x: string]: { [x: string]: string; }; };
 		try {
 			parseJson = JSON.parse(content);
 		} catch {
 			parseJson = {};
 		}
-		let fileAssoc = parseJson[FILE_ASSOCIATIONS];
+		let fileAssoc = parseJson[CONSTANTS.FILE_ASSOCIATIONS];
 		if (fileAssoc === undefined) {
-			parseJson[FILE_ASSOCIATIONS] = { REACH_FILE_EXT: JAVASCRIPT };
+			parseJson[CONSTANTS.FILE_ASSOCIATIONS] = { REACH_FILE_EXT: CONSTANTS.JAVASCRIPT };
 		} else {
-			parseJson[FILE_ASSOCIATIONS][REACH_FILE_EXT] = JAVASCRIPT;
+			parseJson[CONSTANTS.FILE_ASSOCIATIONS][CONSTANTS.REACH_FILE_EXT] = CONSTANTS.JAVASCRIPT;
 		}
-		fs.writeFile(settingsFile, JSON.stringify(parseJson), function (err: any) {
+		CONSTANTS.fs.writeFile(settingsFile, JSON.stringify(parseJson), function (err: any) {
 			if (err) {
-				console.error(`${CANNOT_CREATE_SETTINGS} ${err}`);
+				console.error(`${CONSTANTS.CANNOT_CREATE_SETTINGS} ${err}`);
 				return;
 			}
 		});
