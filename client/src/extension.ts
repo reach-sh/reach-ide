@@ -27,7 +27,7 @@ let client: LanguageClient;
 let terminal;
 let rootFolder: string;
 
-const SETTINGS_ROOT:string = `${rootFolder}${path.sep}.vscode/settings.json`;
+const SETTINGS_ROOT:string = `${rootFolder}${path.sep}${VS_CODE_SETTING_JSON}`;
 
 export function activate(context: ExtensionContext) {
 	// The server is implemented in node

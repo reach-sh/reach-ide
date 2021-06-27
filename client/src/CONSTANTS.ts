@@ -23,6 +23,7 @@ const REACH_HELP:string = 'reach-help';
 const REACH_DOCS:string = 'reach-docs';
 const VSCODE_DOT_EXT:string = '.vscode';
 const MKDIR_P:string = 'mkdir -p';
+const VS_CODE_SETTING_JSON:string = '.vscode/settings.json';
 
 enum CMD_HELPER {
 	COMPILE = <any>'compile',
