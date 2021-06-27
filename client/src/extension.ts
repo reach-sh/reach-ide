@@ -25,28 +25,73 @@ import { CommandsTreeDataProvider, DocumentationTreeDataProvider, HelpTreeDataPr
 
 let client: LanguageClient;
 
-var terminal;
+let terminal;
 
 const fs = require('fs');
 const url = require('url');
 
+let rootFolder: string;
+const REACH_IDE_S:string = 'Reach IDE';
+const PATH_SERVER_JOIN:string = 'server';
+const PATH_SERVER_OUT:string = 'out';
+const PATH_SERVER_JS_S:string = 'server.js';
 const FILE_ASSOCIATIONS:string = 'files.associations';
 const REACH_FILE_EXT:string = '*.rsh';
 const JAVASCRIPT:string = 'javascript';
+const SERVER_DEBUG_OPTIONS_NOLAZY:string = '--nolazy';
+const REACH_EXECUTABLE_PATH:string ='reachide.executableLocation';
+const SERVER_DEBUG_OPTIONS_INSPECT_6009 = '--inspect=6009';
 const SETTINGS_ROOT:string = `${rootFolder}${path.sep}.vscode/settings.json`;
-const CANNOT_CREATE_SETTINGS:string = `Could not create .vscode/settings.json:`; 
+const CANNOT_CREATE_SETTINGS:string = `Could not create .vscode/settings.json:`;
+const REACH_PATH:string = './reach';
+const REACH_CLIENT_ID:string = 'reachide';
+const CREATE_FILESYSTEM_WATCHER_PARAM:string = '**/*.rsh';
+const SCHEME:string = 'file';
+const JOIN_REACH:string = 'reach';
+const WORKSPACE_FOLDERS_DOT:string = '.';
+const REACH_COMMANDS:string = 'reach-commands';
+const REACH_HELP:string = 'reach-help';
+const REACH_DOCS:string = 'reach-docs';
+const VSCODE_DOT_EXT:string = '.vscode';
+const MKDIR_P:string = 'mkdir -p';
 
+enum CMD_HELPER {
+	COMPILE = <any>'compile',
+	RUN = <any>'run',
+	CLEAN = <any>'clean',
+	UPGRADE = <any>'upgrade',
+	UPDATE = <any>'update',
+	HASHES = <any>'hashes',
+	VERSION = <any>'version',
+	DOCKER_RESET = <any>'docker-reset',
+	DEVNET = <any>'devnet',
+	RPC_SERVER = <any>'rpc-server',
+	RPC_RUN = <any>'run',
+	RPC_REACT= <any>'react',
+	SCAFFOLD = <any>'scaffold',
+	DOWN = <any>'down',
+	INIT = <any>'init'
+  }
 
-var rootFolder: string;
+  enum URL_HELPER {
+	DOCS = <any>'docs',
+	DOCS_URL = <any>'https://docs.reach.sh/doc-index.html',
+	ISSUE = <any>'issue',
+	ISSUE_URL = <any>'https://github.com/reach-sh/reach-lang/issues/new',
+	DISCORD = <any>'discord',
+	DISCORD_URL = <any>'https://discord.gg/2XzY6MVpFH',
+	GIST = <any>'gist',
+	GIST_URL = <any>'https://gist.github.com/'
+}
 
 export function activate(context: ExtensionContext) {
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(
-		path.join('server', 'out', 'server.js')
+		path.join(PATH_SERVER_JOIN, PATH_SERVER_OUT, PATH_SERVER_JS_S)
 	);
 	// The debug options for the server
 	// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-	let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
+	let debugOptions = { execArgv: [SERVER_DEBUG_OPTIONS_NOLAZY, SERVER_DEBUG_OPTIONS_INSPECT_6009] };
 
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
@@ -59,11 +104,11 @@ export function activate(context: ExtensionContext) {
 		}
 	};
 
-	terminal = window.createTerminal({ name: 'Reach IDE' });
-	const reachExecutablePath = workspace.getConfiguration().get('reachide.executableLocation') as string;
-	const wf = workspace.workspaceFolders[0].uri.path || '.';
-	const reachPath = (reachExecutablePath === './reach')
-		? path.join(wf, 'reach')
+	terminal = window.createTerminal({ name: REACH_IDE_S });
+	const reachExecutablePath = workspace.getConfiguration().get(REACH_EXECUTABLE_PATH) as string;
+	const wf = workspace.workspaceFolders[0].uri.path || WORKSPACE_FOLDERS_DOT;
+	const reachPath = (reachExecutablePath === REACH_PATH)
+		? path.join(wf, JOIN_REACH)
 		: reachExecutablePath;
 	registerCommands(context, reachPath);
 
@@ -73,20 +118,20 @@ export function activate(context: ExtensionContext) {
 		// Register the server for Reach .rsh documents
 		documentSelector: [
 			{
-			  pattern: '**/*.rsh',
-			  scheme: 'file'
+			  pattern: CREATE_FILESYSTEM_WATCHER_PARAM,
+			  scheme: SCHEME
 			}
 		],
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
-			fileEvents: workspace.createFileSystemWatcher('**/*.rsh')
+			fileEvents: workspace.createFileSystemWatcher(CREATE_FILESYSTEM_WATCHER_PARAM)
 		}
 	};
 
 	// Create the language client and start the client.
 	client = new LanguageClient(
-		'reachide',
-		'Reach IDE',
+		REACH_CLIENT_ID,
+		REACH_IDE_S,
 		serverOptions,
 		clientOptions
 	);
@@ -102,13 +147,13 @@ export function activate(context: ExtensionContext) {
 	}
 	associateRshFiles();
 
-	window.registerTreeDataProvider('reach-commands', new CommandsTreeDataProvider());
-	window.registerTreeDataProvider('reach-help', new HelpTreeDataProvider());
-	window.registerTreeDataProvider('reach-docs', new DocumentationTreeDataProvider());
+	window.registerTreeDataProvider(REACH_COMMANDS, new CommandsTreeDataProvider());
+	window.registerTreeDataProvider(REACH_HELP, new HelpTreeDataProvider());
+	window.registerTreeDataProvider(REACH_DOCS, new DocumentationTreeDataProvider());
 }
 
 const commandHelper = (context, reachPath) => (label) => {
-	const disposable = commands.registerCommand(`reach.${label}`, () => {
+	const disposable = commands.registerCommand(`${JOIN_REACH}.${label}`, () => {
 		terminal.show();
 		terminal.sendText(`${reachPath} ${label}`);
 	});
@@ -116,7 +161,7 @@ const commandHelper = (context, reachPath) => (label) => {
 };
 
 const urlHelper = (context, label, url) => {
-	const disposable = commands.registerCommand(`reach.${label}`, () => {
+	const disposable = commands.registerCommand(`${JOIN_REACH}.${label}`, () => {
 		env.openExternal(Uri.parse(url));
 	});
 	context.subscriptions.push(disposable);
@@ -125,37 +170,37 @@ const urlHelper = (context, label, url) => {
 function registerCommands(context: ExtensionContext, reachPath: string) {
 	const cmdHelper = commandHelper(context, reachPath);
 
-	cmdHelper('compile');
-	cmdHelper('run');
-	cmdHelper('clean');
-	cmdHelper('upgrade');
-	cmdHelper('update');
-	cmdHelper('hashes');
-	cmdHelper('version');
-	cmdHelper('docker-reset');
-	cmdHelper('devnet');
-	cmdHelper('rpc-server');
-	cmdHelper('rpc-run');
-	cmdHelper('react');
-	cmdHelper('scaffold');
-	cmdHelper('down');
-	cmdHelper('init');
+	cmdHelper(CMD_HELPER.COMPILE);
+	cmdHelper(CMD_HELPER.RUN);
+	cmdHelper(CMD_HELPER.CLEAN);
+	cmdHelper(CMD_HELPER.UPGRADE);
+	cmdHelper(CMD_HELPER.UPDATE);
+	cmdHelper(CMD_HELPER.HASHES);
+	cmdHelper(CMD_HELPER.VERSION);
+	cmdHelper(CMD_HELPER.DOCKER_RESET);
+	cmdHelper(CMD_HELPER.DEVNET);
+	cmdHelper(CMD_HELPER.RPC_SERVER);
+	cmdHelper(CMD_HELPER.RPC_RUN);
+	cmdHelper(CMD_HELPER.RPC_REACT);
+	cmdHelper(CMD_HELPER.SCAFFOLD);
+	cmdHelper(CMD_HELPER.DOWN);
+	cmdHelper(CMD_HELPER.INIT);
 
-	urlHelper(context, 'docs', 'https://docs.reach.sh/doc-index.html');
-	urlHelper(context, 'issue', 'https://github.com/reach-sh/reach-lang/issues/new');
-	urlHelper(context, 'discord', 'https://discord.gg/2XzY6MVpFH');
-	urlHelper(context, 'gist', 'https://gist.github.com/');
+	urlHelper(context, URL_HELPER.DOCS, URL_HELPER.DOCS_URL);
+	urlHelper(context, URL_HELPER.ISSUE, URL_HELPER.ISSUE_URL);
+	urlHelper(context, URL_HELPER.DISCORD, URL_HELPER.DISCORD_URL);
+	urlHelper(context, URL_HELPER.GIST, URL_HELPER.GIST_URL);
 
 }
 
 function associateRshFiles() {
-	exec(`mkdir -p ${rootFolder}${path.sep}.vscode`, (error: { message: any; }, stdout: any, stderr: any) => {
+	exec(`${MKDIR_P} ${rootFolder}${path.sep}${VSCODE_DOT_EXT}`, (error: { message: any; }, stdout: any, stderr: any) => {
 		if (error) {
-			console.error(`Could not create .vscode directory: ${error.message}`);
+			console.error(`${CANNOT_CREATE_SETTINGS} ${error.message}`);
 			return;
 		}
 		if (stderr) {
-			console.error(`Could not create .vscode directory: ${stderr}`);
+			console.error(`${CANNOT_CREATE_SETTINGS} ${stderr}`);
 			return;
 		}
 		injectRshFileAssocation();
