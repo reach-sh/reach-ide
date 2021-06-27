@@ -15,35 +15,9 @@ import { workspace, ExtensionContext, commands, window, env, ViewColumn, Uri, Wo
 import { exec } from 'child_process';
 import { initButtons } from './buttons';
 import {CONSTANTS} from './CONSTANTS';
+import {CMD_HELPER} from './ENUMS';
+import { URL_HELPER } from './ENUMS';
 
-enum CMD_HELPER {
-	COMPILE = <any>'compile',
-	RUN = <any>'run',
-	CLEAN = <any>'clean',
-	UPGRADE = <any>'upgrade',
-	UPDATE = <any>'update',
-	HASHES = <any>'hashes',
-	VERSION = <any>'version',
-	DOCKER_RESET = <any>'docker-reset',
-	DEVNET = <any>'devnet',
-	RPC_SERVER = <any>'rpc-server',
-	RPC_RUN = <any>'run',
-	RPC_REACT= <any>'react',
-	SCAFFOLD = <any>'scaffold',
-	DOWN = <any>'down',
-	INIT = <any>'init'
-  }
-
-  enum URL_HELPER {
-	DOCS = <any>'docs',
-	DOCS_URL = <any>'https://docs.reach.sh/doc-index.html',
-	ISSUE = <any>'issue',
-	ISSUE_URL = <any>'https://github.com/reach-sh/reach-lang/issues/new',
-	DISCORD = <any>'discord',
-	DISCORD_URL = <any>'https://discord.gg/2XzY6MVpFH',
-	GIST = <any>'gist',
-	GIST_URL = <any>'https://gist.github.com/'
-}
 import {
 	LanguageClient,
 	LanguageClientOptions,
@@ -129,7 +103,7 @@ export function activate(context: ExtensionContext) {
 const commandHelper = (context, reachPath) => (label) => {
 	const disposable = commands.registerCommand(`${CONSTANTS.JOIN_REACH}.${label}`, () => {
 		terminal.show();
-		terminal.sendText(`${reachPath} ${label}`);
+		terminal.sendText(`${reachPath}${label}`);
 	});
 	context.subscriptions.push(disposable);
 };
@@ -143,7 +117,7 @@ const urlHelper = (context, label, url) => {
 
 function registerCommands(context: ExtensionContext, reachPath: string) {
 	const cmdHelper = commandHelper(context, reachPath);
-
+	
 	for (const value in CMD_HELPER) {
 		cmdHelper(value);
 	}
@@ -156,13 +130,13 @@ function registerCommands(context: ExtensionContext, reachPath: string) {
 }
 
 function associateRshFiles() {
-	exec(`${CONSTANTS.MKDIR_P} ${rootFolder}${path.sep}${CONSTANTS.VSCODE_DOT_EXT}`, (error: { message: any; }, stdout: any, stderr: any) => {
+	exec(`${CONSTANTS.MKDIR_P}${rootFolder}${path.sep}${CONSTANTS.VSCODE_DOT_EXT}`, (error: { message: any; }, stdout: any, stderr: any) => {
 		if (error) {
-			console.error(`${CONSTANTS.CANNOT_CREATE_SETTINGS} ${error.message}`);
+			console.error(`${CONSTANTS.CANNOT_CREATE_SETTINGS}${error.message}`);
 			return;
 		}
 		if (stderr) {
-			console.error(`${CONSTANTS.CANNOT_CREATE_SETTINGS} ${stderr}`);
+			console.error(`${CONSTANTS.CANNOT_CREATE_SETTINGS}${stderr}`);
 			return;
 		}
 		injectRshFileAssocation();
@@ -187,7 +161,7 @@ function injectRshFileAssocation() {
 		}
 		CONSTANTS.fs.writeFile(settingsFile, JSON.stringify(parseJson), function (err: any) {
 			if (err) {
-				console.error(`${CONSTANTS.CANNOT_CREATE_SETTINGS} ${err}`);
+				console.error(`${CONSTANTS.CANNOT_CREATE_SETTINGS}${err}`);
 				return;
 			}
 		});

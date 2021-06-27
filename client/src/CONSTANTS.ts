@@ -23,7 +23,7 @@ public static REACH_COMMANDS:string = 'reach-commands';
 public static REACH_HELP:string = 'reach-help';
 public static REACH_DOCS:string = 'reach-docs';
 public static VSCODE_DOT_EXT:string = '.vscode';
-public static MKDIR_P:string = 'mkdir -p';
+public static MKDIR_P:string = 'mkdir -p ';
 public static VS_CODE_SETTING_JSON:string = '.vscode/settings.json';
 
 
