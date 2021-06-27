@@ -170,22 +170,10 @@ const urlHelper = (context, label, url) => {
 function registerCommands(context: ExtensionContext, reachPath: string) {
 	const cmdHelper = commandHelper(context, reachPath);
 
-	cmdHelper(CMD_HELPER.COMPILE);
-	cmdHelper(CMD_HELPER.RUN);
-	cmdHelper(CMD_HELPER.CLEAN);
-	cmdHelper(CMD_HELPER.UPGRADE);
-	cmdHelper(CMD_HELPER.UPDATE);
-	cmdHelper(CMD_HELPER.HASHES);
-	cmdHelper(CMD_HELPER.VERSION);
-	cmdHelper(CMD_HELPER.DOCKER_RESET);
-	cmdHelper(CMD_HELPER.DEVNET);
-	cmdHelper(CMD_HELPER.RPC_SERVER);
-	cmdHelper(CMD_HELPER.RPC_RUN);
-	cmdHelper(CMD_HELPER.RPC_REACT);
-	cmdHelper(CMD_HELPER.SCAFFOLD);
-	cmdHelper(CMD_HELPER.DOWN);
-	cmdHelper(CMD_HELPER.INIT);
-
+	for (const value in CMD_HELPER) {
+		cmdHelper(value);
+	}
+	
 	urlHelper(context, URL_HELPER.DOCS, URL_HELPER.DOCS_URL);
 	urlHelper(context, URL_HELPER.ISSUE, URL_HELPER.ISSUE_URL);
 	urlHelper(context, URL_HELPER.DISCORD, URL_HELPER.DISCORD_URL);
