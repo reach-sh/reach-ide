@@ -24,8 +24,8 @@ import {
 import { CommandsTreeDataProvider, DocumentationTreeDataProvider, HelpTreeDataProvider } from './CommandsTreeDataProvider';
 
 let client: LanguageClient;
-
 let terminal;
+let rootFolder: string;
 
 const SETTINGS_ROOT:string = `${rootFolder}${path.sep}.vscode/settings.json`;
 

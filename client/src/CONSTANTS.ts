@@ -1,7 +1,6 @@
 const fs = require('fs');
 const url = require('url');
 
-let rootFolder: string;
 const REACH_IDE_S:string = 'Reach IDE';
 const PATH_SERVER_JOIN:string = 'server';
 const PATH_SERVER_OUT:string = 'out';
