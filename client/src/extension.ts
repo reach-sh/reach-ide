@@ -15,8 +15,7 @@ import { workspace, ExtensionContext, commands, window, env, ViewColumn, Uri, Wo
 import { exec } from 'child_process';
 import { initButtons } from './buttons';
 import {CONSTANTS} from './CONSTANTS';
-import {CMD_HELPER} from './ENUMS';
-import { URL_HELPER } from './ENUMS';
+import {CMD_HELPER,URL_HELPER} from './ENUMS';
 
 import {
 	LanguageClient,
