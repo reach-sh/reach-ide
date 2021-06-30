@@ -1,14 +1,14 @@
 import { ExtensionContext } from 'vscode';
 import * as vscode from 'vscode';
 
-const REACH_COMPILE_S:string = 'Reach Compile';
-const REACH_COMPILE:string = 'reach.compile';
-const REACH_RUN_S:string = 'Reach Run';
-const REACH_RUN:string = 'reach.run';
-const POST_ISSUE_S:string = 'Post Issue';
-const POST_ISSUE:string = 'reach.issue';
-const CREATE_GIST_S:string = 'Create Gist';
-const CREATE_GIST:string = 'reach.gist';
+const REACH_COMPILE_TEXT : string = 'Reach Compile';
+const REACH_COMPILE_CMD : string = 'reach.compile';
+const REACH_RUN_TEXT : string = 'Reach Run';
+const REACH_RUN_CMD : string = 'reach.run';
+const POST_ISSUE_TEXT : string = 'Post Issue';
+const POST_ISSUE_CMD : string = 'reach.issue';
+const CREATE_GIST_TEXT : string = 'Create Gist';
+const CREATE_GIST_CMD : string = 'reach.gist';
 
 let shownButtons = [];
 
@@ -32,10 +32,10 @@ function removeAllButtons() {
 
 function showButtons() {
 	createButtons([
-		[REACH_COMPILE_S, REACH_COMPILE ],
-		[REACH_RUN_S, REACH_RUN],
-		[POST_ISSUE_S, POST_ISSUE],
-		[CREATE_GIST_S, CREATE_GIST],
+		[REACH_COMPILE_TEXT, REACH_COMPILE_CMD ],
+		[REACH_RUN_TEXT, REACH_RUN_CMD],
+		[POST_ISSUE_TEXT, POST_ISSUE_CMD],
+		[CREATE_GIST_TEXT, CREATE_GIST_CMD],
 	]);
 }
 
