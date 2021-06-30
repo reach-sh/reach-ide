@@ -23,12 +23,12 @@ import {
 } from 'vscode-languageclient';
 import { CommandsTreeDataProvider, DocumentationTreeDataProvider, HelpTreeDataProvider } from './CommandsTreeDataProvider';
 
-let client: LanguageClient;
-
-var terminal;
-
 const fs = require('fs');
 const url = require('url');
+
+let client: LanguageClient;
+let rootFolder: string;
+let terminal;
 
 const FILE_ASSOCIATIONS : string = 'files.associations';
 const REACH_FILE_SELECTOR : string = '*.rsh';
@@ -37,7 +37,7 @@ const WORKSPACE_SETTINGS_PATH : string = `${rootFolder}${path.sep}.vscode/settin
 const CANNOT_CREATE_SETTINGS : string = `Could not create .vscode/settings.json:`; 
 
 
-var rootFolder: string;
+
 
 export function activate(context: ExtensionContext) {
 	// The server is implemented in node
