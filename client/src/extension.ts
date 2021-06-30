@@ -30,11 +30,11 @@ var terminal;
 const fs = require('fs');
 const url = require('url');
 
-const FILE_ASSOCIATIONS:string = 'files.associations';
-const REACH_FILE_EXT:string = '*.rsh';
-const JAVASCRIPT:string = 'javascript';
-const SETTINGS_ROOT:string = `${rootFolder}${path.sep}.vscode/settings.json`;
-const CANNOT_CREATE_SETTINGS:string = `Could not create .vscode/settings.json:`; 
+const FILE_ASSOCIATIONS : string = 'files.associations';
+const REACH_FILE_SELECTOR : string = '*.rsh';
+const JAVASCRIPT : string = 'javascript';
+const WORKSPACE_SETTINGS_PATH : string = `${rootFolder}${path.sep}.vscode/settings.json`;
+const CANNOT_CREATE_SETTINGS : string = `Could not create .vscode/settings.json:`; 
 
 
 var rootFolder: string;
@@ -163,7 +163,7 @@ function associateRshFiles() {
 }
 
 function injectRshFileAssocation() {
-	const settingsFile:string = SETTINGS_ROOT;
+	const settingsFile:string = WORKSPACE_SETTINGS_PATH;
 
 	fs.readFile(settingsFile, function (err: any, content: string) {
 		let parseJson: { [x: string]: { [x: string]: string; }; };
@@ -174,9 +174,9 @@ function injectRshFileAssocation() {
 		}
 		let fileAssoc = parseJson[FILE_ASSOCIATIONS];
 		if (fileAssoc === undefined) {
-			parseJson[FILE_ASSOCIATIONS] = { REACH_FILE_EXT: JAVASCRIPT };
+			parseJson[FILE_ASSOCIATIONS] = { REACH_FILE_SELECTOR: JAVASCRIPT };
 		} else {
-			parseJson[FILE_ASSOCIATIONS][REACH_FILE_EXT] = JAVASCRIPT;
+			parseJson[FILE_ASSOCIATIONS][REACH_FILE_SELECTOR] = JAVASCRIPT;
 		}
 		fs.writeFile(settingsFile, JSON.stringify(parseJson), function (err: any) {
 			if (err) {
