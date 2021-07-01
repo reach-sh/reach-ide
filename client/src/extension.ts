@@ -33,7 +33,6 @@ let terminal;
 const FILE_ASSOCIATIONS : string = 'files.associations';
 const REACH_FILE_SELECTOR : string = '*.rsh';
 const JAVASCRIPT : string = 'javascript';
-const WORKSPACE_SETTINGS_PATH : string = `${rootFolder}${path.sep}.vscode/settings.json`;
 const CANNOT_CREATE_SETTINGS : string = `Could not create .vscode/settings.json:`; 
 
 
@@ -163,7 +162,7 @@ function associateRshFiles() {
 }
 
 function injectRshFileAssocation() {
-	const settingsFile:string = WORKSPACE_SETTINGS_PATH;
+	const settingsFile:string = `${rootFolder}${path.sep}.vscode/settings.json`;
 
 	fs.readFile(settingsFile, function (err: any, content: string) {
 		let parseJson: { [x: string]: { [x: string]: string; }; };
