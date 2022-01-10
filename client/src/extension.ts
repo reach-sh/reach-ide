@@ -23,14 +23,18 @@ import {
 } from 'vscode-languageclient';
 import { CommandsTreeDataProvider, DocumentationTreeDataProvider, HelpTreeDataProvider } from './CommandsTreeDataProvider';
 
-let client: LanguageClient;
-
-var terminal;
-
 const fs = require('fs');
 const url = require('url');
 
-var rootFolder: string;
+let client: LanguageClient;
+let rootFolder: string;
+let terminal;
+
+const FILE_ASSOCIATIONS : string = 'files.associations';
+const REACH_FILE_SELECTOR : string = '*.rsh';
+const JAVASCRIPT : string = 'javascript';
+const CANNOT_CREATE_SETTINGS : string = `Could not create .vscode/settings.json:`;
+const COULD_NOT_CREATE_DIRECTORY : string = `Could not create .vscode directory`;
 
 export function activate(context: ExtensionContext) {
 	// The server is implemented in node
@@ -144,11 +148,11 @@ function registerCommands(context: ExtensionContext, reachPath: string) {
 function associateRshFiles() {
 	exec(`mkdir -p ${rootFolder}${path.sep}.vscode`, (error: { message: any; }, stdout: any, stderr: any) => {
 		if (error) {
-			console.error(`Could not create .vscode directory: ${error.message}`);
+			console.error(`${COULD_NOT_CREATE_DIRECTORY} ${error.message}`);
 			return;
 		}
 		if (stderr) {
-			console.error(`Could not create .vscode directory: ${stderr}`);
+			console.error(`${COULD_NOT_CREATE_DIRECTORY} ${stderr}`);
 			return;
 		}
 		injectRshFileAssocation();
@@ -165,15 +169,15 @@ function injectRshFileAssocation() {
 		} catch {
 			parseJson = {};
 		}
-		let fileAssoc = parseJson['files.associations'];
+		let fileAssoc = parseJson[FILE_ASSOCIATIONS];
 		if (fileAssoc === undefined) {
-			parseJson['files.associations'] = { '*.rsh': 'javascript' };
+			parseJson[FILE_ASSOCIATIONS] = { REACH_FILE_SELECTOR: JAVASCRIPT };
 		} else {
-			parseJson['files.associations']['*.rsh'] = 'javascript';
+			parseJson[FILE_ASSOCIATIONS][REACH_FILE_SELECTOR] = JAVASCRIPT;
 		}
 		fs.writeFile(settingsFile, JSON.stringify(parseJson), function (err: any) {
 			if (err) {
-				console.error(`Could not create .vscode/settings.json: ${err}`);
+				console.error(`${CANNOT_CREATE_SETTINGS} ${err}`);
 				return;
 			}
 		});
